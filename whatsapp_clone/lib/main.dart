@@ -5,7 +5,6 @@ import 'package:whatsapp_clone/calls.dart';
 import 'package:whatsapp_clone/chat_tile_screen.dart';
 import 'status.dart';
 
-
 void main() {
   runApp(
     MaterialApp(
@@ -21,85 +20,82 @@ void main() {
   );
 }
 
-
-
 class ChatScreen extends StatefulWidget {
-
-  
   static const String id = "chatscreen";
-  @override
   const ChatScreen({super.key});
+  @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  
-
-  List<String> chat=['anu','arun'];
-  List img =['images/woman.png', 'images/boy.png'];
+  final List<String> chat = ['anu', 'arun'];
+  final List img = ['images/woman.png', 'images/boy.png'];
   bool showChatTiles = false;
- final messagekey=GlobalKey();
-
- late TutorialCoachMark tutorialCoachMark;
-
-void initAddSiteInAppTour(){
-  List<TargetFocus> addSiteTargetsPage({
- 
-  required GlobalKey messagekey,
   
-})
-{
+  late TutorialCoachMark tutorialCoachMark;
   List<TargetFocus> targets = [];
-
-
-
-  targets.add(
-    TargetFocus(
-      keyTarget: messagekey,
-      alignSkip: Alignment.bottomRight,
-      radius: 10,
-      shape: ShapeLightFocus.Circle,
-      contents: [
-          TargetContent(
-            align: ContentAlign.top,
-            builder: (context, controller)  {
-              return Container(
-                alignment: Alignment.center,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    Text(
-                      
-                      "click this to go to contacts",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                    ),
-                  ],
-                ),
-              );
-            }
-          ),
-        ],
-    ),
-  );
-
-  return targets;
-}
-}
- 
- 
-
+  GlobalKey keyMessageIcon = GlobalKey();
 
   @override
-  
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => showTutorial());
+  }
+
+  void showTutorial() {
+    initTargets();
+    tutorialCoachMark = TutorialCoachMark(
+      
+      targets: targets,
+      colorShadow: Colors.black,
+      textSkip: "SKIP",
+      paddingFocus: 10,
+      opacityShadow: 0.8,
+      onFinish: () {
+        print("Tutorial finished");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: $target');
+      },
+      
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+    )..show(context:context);
+  }
+
+  void initTargets() {
+    targets.add(
+      TargetFocus(
+        identify: "Message Icon",
+        keyTarget: keyMessageIcon,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: Column(
+              children: const [
+                Text(
+                  "Click here to start a new chat",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor:const Color(0xff075e54),
+        backgroundColor: const Color(0xff075e54),
         title: const Text(
           'WhatsApp',
           style: TextStyle(
@@ -223,15 +219,14 @@ void initAddSiteInAppTour(){
         height: 70,
         child: FittedBox(
           child: FloatingActionButton(
-            backgroundColor:const Color(0xff25D366),
-            key: messagekey,
+            key: keyMessageIcon,
+            backgroundColor: const Color(0xff25D366),
             child: const Icon(
               Icons.message,
             ),
-              onPressed:  () {
+            onPressed: () {
               Navigator.pushNamed(context, ChatTilesScreen.id);
             },
-            
           ),
         ),
       ),
@@ -239,4 +234,3 @@ void initAddSiteInAppTour(){
     );
   }
 }
-

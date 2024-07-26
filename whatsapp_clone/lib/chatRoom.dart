@@ -3,117 +3,102 @@ import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:whatsapp_clone/message_bubble.dart';
 
-
 class ChatRoom extends StatefulWidget {
   final String name;
   final String img;
   final TextEditingController controller;
-  ChatRoom({required this.name, required this.img,required this.controller,super.key});
+  
+  ChatRoom({required this.name, required this.img, required this.controller, super.key});
+  
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
 
-
-
 class _ChatRoomState extends State<ChatRoom> {
-bool emptyString = true;
-final sendkey=GlobalKey();
-final textkey=GlobalKey();
+  bool emptyString = true;
+  List<String> chatMsgs = [];
+  late TutorialCoachMark tutorialCoachMark;
+  List<TargetFocus> targets = [];
+  GlobalKey keyTextField = GlobalKey();
+  GlobalKey keySendButton = GlobalKey();
 
-late TutorialCoachMark tutorialCoachMark;
-
-@override
+  @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _showTutorial());
+    WidgetsBinding.instance.addPostFrameCallback((_) => showTutorial());
   }
 
-  void _afterLayout(_) {
-    _showTutorial();
-  }
-
-  void _showTutorial() {
+  void showTutorial() {
+    initTargets();
     tutorialCoachMark = TutorialCoachMark(
-      targets: _createTargets(),
       
+      targets: targets,
       colorShadow: Colors.black,
       textSkip: "SKIP",
       paddingFocus: 10,
-    )
-    ..show(context: context);
-  } 
+      opacityShadow: 0.8,
+      onFinish: () {
+        print("Tutorial finished");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: $target');
+      },
+      
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+    )..show(context: context);
+  }
 
-  
-
-
-  List<TargetFocus> _createTargets(){
-
-  List<TargetFocus> targets = [];
-  targets.add(
-    TargetFocus(
-      keyTarget: sendkey,
-      alignSkip: Alignment.topRight,
-      radius: 10,
-      shape: ShapeLightFocus.Circle,
-      contents:  [
+  void initTargets() {
+    targets.add(
+      TargetFocus(
+        identify: "TextField",
+        keyTarget: keyTextField,
+        contents: [
           TargetContent(
             align: ContentAlign.top,
-            builder: (context, controller)  {
-              return Container(
-                alignment: Alignment.center,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    Text(
-                      
-                      "click this to send messages",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                    ),
-                  ],
+            child: Column(
+              children: const [
+                Text(
+                  "Type your message here. This is where you compose your text.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
                 ),
-              );
-            }
+              ],
+            ),
           ),
         ],
-    ),
-  );
-  targets.add(
-    TargetFocus(
-      keyTarget: textkey,
-      alignSkip: Alignment.topRight,
-      radius: 10,
-      shape: ShapeLightFocus.Circle,
-      contents: [
+      ),
+    );
+    
+    targets.add(
+      TargetFocus(
+        identify: "Send Button",
+        keyTarget: keySendButton,
+        contents: [
           TargetContent(
             align: ContentAlign.top,
-            builder: (context, controller)  {
-              return Container(
-                alignment: Alignment.center,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    Text(
-                      
-                      "click this to type message",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                    ),
-                  ],
+            child: Column(
+              children: const [
+                Text(
+                  "Tap here to send your message. It will be delivered to the chat.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
                 ),
-              );
-            }
+              ],
+            ),
           ),
         ],
-    ),
-  );
-  return targets;
-
-}
-
-List<String> chatMsgs = [];
+      ),
+    );
+  }
 
   void sendMessage() {
     if (widget.controller.text.isNotEmpty) {
@@ -124,7 +109,6 @@ List<String> chatMsgs = [];
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -215,8 +199,7 @@ List<String> chatMsgs = [];
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-           
-              Expanded(
+            Expanded(
               child: ListView.builder(
                 itemCount: chatMsgs.length,
                 itemBuilder: (context, index) {
@@ -227,7 +210,6 @@ List<String> chatMsgs = [];
                 },
               ),
             ),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -245,7 +227,7 @@ List<String> chatMsgs = [];
                       right: 10,
                       left: 5,
                     ),
-                    decoration:const BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(
                         Radius.circular(20),
@@ -262,17 +244,16 @@ List<String> chatMsgs = [];
                         Padding(
                           padding: const EdgeInsets.only(top: 3.0),
                           child: SizedBox(
+                            key: keyTextField,
                             width: MediaQuery.of(context).size.width * 0.55,
                             height: MediaQuery.of(context).size.width * 0.1,
                             child: TextField(
                               onChanged: (String value) {
                                 setState(() {
                                   emptyString = value.isEmpty;
-                                
                                 });
                               },
-                              key: textkey,
-                              controller:widget.controller,
+                              controller: widget.controller,
                               keyboardType: TextInputType.multiline,
                               cursorColor: Colors.teal,
                               style: const TextStyle(
@@ -280,7 +261,6 @@ List<String> chatMsgs = [];
                               ),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                
                                 hintText: 'Type a message...',
                                 hintStyle: TextStyle(
                                   color: Colors.grey.shade400,
@@ -295,7 +275,7 @@ List<String> chatMsgs = [];
                           color: Colors.grey.shade500,
                           size: 27,
                         ),
-                       const SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
                         emptyString
@@ -310,7 +290,8 @@ List<String> chatMsgs = [];
                   ),
                 ),
                 CircleAvatar(
-                  backgroundColor:const Color(0xff00897b),
+                  key: keySendButton,
+                  backgroundColor: const Color(0xff00897b),
                   radius: 23,
                   child: emptyString
                       ? const Icon(
@@ -319,12 +300,11 @@ List<String> chatMsgs = [];
                           size: 30,
                         )
                       : IconButton(
-                        icon: Icon(CupertinoIcons.paperplane,
-                        key:sendkey,
-                          color: Colors.white,),
+                          icon: Icon(
+                            CupertinoIcons.paperplane,
+                            color: Colors.white,
+                          ),
                           onPressed: sendMessage,
-                          
-
                         ),
                 )
               ],
